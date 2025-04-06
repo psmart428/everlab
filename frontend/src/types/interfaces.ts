@@ -50,7 +50,7 @@ export type EnrichedObservation = Observation & {
   standard_higher: number | null;
 };
 
-export type FlaggedPatient = Patient & {
+export type FlaggedPatient = Omit<Patient, 'observations'> & {
   matchedConditions: string[];
   observations: EnrichedObservation[];
 };
