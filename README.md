@@ -1,38 +1,161 @@
-# Overview
+# 🧪 Everlab ORU Diagnostic Parser
 
-One of features Everlab doctors use in the backend is being able to automatically interpret pathology report data that arrives in the HL7/ORU format.
+This is a fullstack project that allows users to upload `.oru` or `.txt` files (in HL7 ORU format), parse and analyze them, match against diagnostic metrics, and identify potential risk conditions based on lab results.
 
-We are going to give you some database tables in CSV format as well as some sample ORU files and ask you to build a single page application that lets a doctor upload an ORU file and see high-risk results. This should be a full-stack web application using any technology of your choice. Things we care about are:
+Built with:
 
-- Speed - how quickly can you build this?
-- Accuracy - is the output correct?
-- UX/Product - is this easy to use for a doctor?
-- Quality - did you make good technical decisions?
+- **Frontend**: Vite + React + TypeScript + TailwindCSS
+- **Backend**: Node.js + Express
+- **Features**:
+  - File upload (.oru, .txt)
+  - HL7 ORU multi-patient parsing
+  - Comparison with diagnostic thresholds
+  - Tailwind UI report with out-of-range metrics
+  - CSV-based dynamic thresholds and condition mapping
 
-We will leave what to display and how in the front-end up to you. Just keep in mind the user (and their goal) of easily interpreting someone’s report data.
+---
 
-# Context
+## 📁 Project Structure
 
-There a 4 CSV files attached below. Each file represents a table as following
+```
+everlab/
+├── backend/                  # Node.js + Express server
+│   ├── utils/                # CSV/ORU parsers
+│   ├── csv/                  # Static CSV files (diagnostic data)
+│   └── index.js              # Main Express app
+│
+├── frontend/                 # Vite + React + Tailwind app
+│   ├── src/
+│   │   ├── components/       # React UI components
+│   │   ├── types/            # Shared interfaces (TS)
+│   │   ├── utils.ts          # Frontend helpers
+│   │   ├── App.tsx
+│   │   └── main.tsx
+│   ├── index.html
+```
 
-- diagnostic_metrics - specific metrics associated with a diagnostic, sometimes there are multiple metrics for one diagnostic.
-    - Metrics also contain reference ranges of the form standard_lower → standard_higher and everlab_lower → everlab_higher. These indicate the “standard” and “everlab” acceptable values for results in these ranges.
-    - Metrics are sometimes personalised based on min_age → max_age and gender. If values are given for a metric we should use the most specific age/gender based reference ranges.
-    - oru_sonic_codes and oru_sonic_units fields are `;` delimited fields of possible ORU values that can match to the metric in the CSV file. We need to match on both code and units to get the right reference range
+---
 
-# Task
+## 🚀 Getting Started
 
-- You can start with this repo
-- Please allow about 6 hours to complete the task
-- Please use Typescript and React
-- Please ensure your submission includes everything needed to run the code. (e.g if a Dockerfile or DB dump is required, please include it)
-- Please host the final app somewhere so its easy to test and play with 
+### 1. Clone the project
 
-We recommend approaching this task by doing the following
+```bash
+git clone https://github.com/yourusername/everlab.git
+cd everlab
+```
 
-- Take some time to understand how the HL7 file format works. Use a tool like https://www.hl7inspector.com/
-- Understand which CSV files you need to use, and how. You can store them in a DB or parse the files directly to use them.
-- Write an API to parse the ORU file into the individual test items and result values
-- Write code to calculate the abnormal test values given our diagnostic_metrics table and the relevant conditions
-    - If there is no relevant match then don’t return the result
-- Write a front-end that lets a doctor upload an ORU file and see the relevant data.
+---
+
+## 🔧 Backend Setup
+
+```bash
+cd backend
+npm install
+```
+
+### ➕ CSV Files
+
+Place your `.csv` files under:
+
+```
+backend/csv/
+├── diagnostic_metrics.csv
+├── diagnostic_conditions.csv
+```
+
+### ▶️ Start the server
+
+```bash
+npm start
+```
+
+Server runs at: `http://localhost:3001`
+
+---
+
+## 🎨 Frontend Setup
+
+```bash
+cd frontend
+npm install
+```
+
+### ✅ TailwindCSS Setup (already configured)
+
+Follow this link: `https://tailwindcss.com/docs/installation/using-vite`
+
+### ▶️ Run the frontend
+
+```bash
+npm run dev
+```
+
+Frontend runs at: `http://localhost:5173`
+
+---
+
+## 📤 Upload Workflow
+
+1. Upload `.oru` or `.txt` file
+2. File is sent to `POST /api/upload-oru`
+3. Backend parses all ORU segments per patient
+4. Each `Observation` is enriched with diagnostic metric ranges
+5. Patients with **out-of-range metrics** and **matched conditions** are shown in a table
+
+---
+
+## 📐 Matching Logic
+
+- Matches are made by:
+  - `oru_sonic_codes`
+  - `oru_sonic_units`
+- Supports:
+  - Gender- and age-specific ranges
+  - Fallback for missing lower bounds (assumes 0 if only upper exists)
+- Automatically includes metrics with no thresholds (for visibility)
+
+---
+
+## 📊 UI Report (Tailwind)
+
+The `RiskReport` component:
+
+- Groups flagged metrics by patient
+- Shows matched conditions
+- Displays everlab and standard range data
+- Mobile-friendly with scrollable tables
+
+---
+
+## 📁 TypeScript Interfaces
+
+Shared via `frontend/src/types/interfaces.ts`, including:
+
+- `Patient`, `Observation`
+- `DiagnosticMetric`, `DiagnosticCondition`
+- `EnrichedObservation`, `FlaggedPatient`
+
+Used across parsing, UI, and utility functions.
+
+---
+
+## ✅ Extensions (Future Ideas)
+
+- Add PDF/CSV export for reports
+- Admin dashboard to upload new CSV definitions
+- Auto-flagging severity (mild/moderate/severe) based on thresholds
+- OAuth login for secure usage
+
+---
+
+## 🧑‍💻 Author
+
+Built with ❤️ by Alex Karpov  
+Feel free to fork, contribute, or ask questions.
+
+---
+
+## 📄 License
+
+MIT License
